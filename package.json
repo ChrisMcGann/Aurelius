@@ -1,0 +1,10 @@
+{
+  "name": "aurelius",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local-first LC gradient optimizer for bottom-up proteomics.",
+  "scripts": {
+    "optimize:dda": "node tools/optimize-dda.js",
+    "test": "node tests/gradient-engine.test.js"
+  }
+}
