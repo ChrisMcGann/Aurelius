@@ -48,10 +48,32 @@ Outputs:
 - `dda_pressure_bins.csv`
 - `dda_summary.json`
 - `dda_report.md`
+- `dda_report.html`
 - `dda_candidate_summary.csv` when no fixed `--max-slope` is supplied
 - `dda_candidate_*_gradient.csv` candidate gradients when no fixed `--max-slope` is supplied
 
-By default, the CLI runs a candidate suite and writes the best LC-realistic candidate to `dda_optimized_gradient.csv`. Candidate scoring rewards density flattening but prefers candidates that stay under the recommended slope target. Pass `--max-slope` to skip the suite and force a single fixed slope limit.
+By default, the CLI runs a candidate suite and writes the best LC-realistic candidate to `dda_optimized_gradient.csv`. Candidate scoring rewards density flattening but prefers candidates that stay under the recommended slope target. Pass `--max-slope` to skip the suite and force a single fixed slope limit. Open `dda_report.html` to visually compare the candidates, density panels, mapped columns, and output files.
+
+## MS1 Feature-Table Bridge
+
+For MS1-style optimization before direct RAW/mzML extraction is available, use a feature table with apex RT, m/z, charge, intensity, scan persistence, and optional quality columns:
+
+```powershell
+& 'C:\Users\cmcga\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe' tools\optimize-dda.js `
+  --input examples\ms1_features.csv `
+  --input-kind ms1-features `
+  --output-dir output\ms1_feature_example `
+  --start-time 0 `
+  --end-time 90 `
+  --start-b 2 `
+  --end-b 40 `
+  --max-q none `
+  --min-scan-count 4 `
+  --min-quality 0.8 `
+  --density-bins 30
+```
+
+This path uses the same gradient engine but applies MS1 feature weighting from abundance, persistence, and feature quality. Direct RAW/mzML extraction should eventually emit this same table shape.
 
 ## Current Real Example
 
@@ -67,6 +89,7 @@ Default candidate-suite run:
 - recommended candidate: `Balanced`
 - density CV: `0.6033 -> 0.3366`
 - slope range: `0.207 to 1.013 %B/min`
+- visual report: `output/dda_real_example_suite/dda_report.html`
 
 Candidate comparison:
 

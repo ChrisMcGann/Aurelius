@@ -43,7 +43,7 @@ For DDA/TMT MS1-style optimization, the useful raw-derived object is the normali
 
 Implementation path:
 
-1. Support feature tables first, because outputs from tools such as Dinosaur, Hardklor/Kronik-style workflows, or vendor exports can be parsed without vendor SDKs.
+1. Support feature tables first, because outputs from tools such as Dinosaur, Hardklor/Kronik-style workflows, or vendor exports can be parsed without vendor SDKs. The CLI now accepts this bridge with `--input-kind ms1-features`.
 2. Add mzML support next, likely through a local helper rather than the browser, because real files are large and feature detection is compute-heavy.
 3. Add Thermo `.raw` support through a local command backed by ThermoRawFileParser or Thermo RawFileReader.
 4. Cache extracted feature tables beside the project so repeated optimization does not reread large RAW files.

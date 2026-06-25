@@ -89,4 +89,29 @@ assert.equal(realBundle.analytes.length, 2);
 assert.equal(realBundle.analytes[0].protein, "TNFRSF18");
 assert.equal(realBundle.analytes[1].sequence, "PEPTIDER");
 
+const ms1FeatureCsv = [
+  "feature_id,apex_rt,feature_mz,charge_state,feature_intensity,scan_count,quality",
+  "f1,12.5,500.2,2,100000,8,0.95",
+  "f2,13.2,501.2,2,100000,2,0.95",
+  "f3,14.8,700.3,3,900000,7,0.50",
+  "f4,22.1,800.4,1,50000,5,0.90",
+  "f5,35.7,900.5,4,250000,10,0.85"
+].join("\n");
+
+const ms1Parsed = Engine.parseDelimited(ms1FeatureCsv);
+const ms1Bundle = Engine.buildAnalytes(ms1Parsed, "ms1_features", { minScanCount: 4, minQuality: 0.8 });
+const ms1PercentThresholdBundle = Engine.buildAnalytes(ms1Parsed, "ms1_features", { minScanCount: 4, minQuality: 80 });
+assert.equal(ms1Bundle.columns.rt, "apex_rt");
+assert.equal(ms1Bundle.columns.mz, "feature_mz");
+assert.equal(ms1Bundle.columns.charge, "charge_state");
+assert.equal(ms1Bundle.columns.intensity, "feature_intensity");
+assert.equal(ms1Bundle.columns.scanCount, "scan_count");
+assert.equal(ms1Bundle.columns.quality, "quality");
+assert.equal(ms1Bundle.analytes.length, 3);
+assert.deepEqual(ms1Bundle.analytes.map((item) => item.mz), [500.2, 800.4, 900.5]);
+assert.ok(ms1Bundle.analytes.every((item) => item.scanCount >= 4));
+assert.ok(ms1Bundle.analytes.every((item) => item.quality >= 0.8));
+assert.ok(ms1Bundle.analytes.every((item) => item.weight > 0));
+assert.equal(ms1PercentThresholdBundle.analytes.length, ms1Bundle.analytes.length);
+
 console.log("gradient-engine tests passed");

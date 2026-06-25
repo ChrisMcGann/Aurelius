@@ -6,10 +6,11 @@ The first working slice implements the baseline nonlinear-gradient idea from Mor
 
 ## Current MVP
 
-- Import a CSV or TSV peptide/precursor table.
+- Import a CSV or TSV peptide/precursor table, or an MS1 feature table for identity-free optimization.
 - Detect common retention-time, intensity, q-value, m/z, TMT S/N, and priority columns.
 - Calculate a weighted nonlinear LC gradient from the input retention-time distribution.
 - Generate LC-realistic DDA candidate gradients and recommend a slope-aware candidate.
+- Write Markdown and HTML reports that compare candidate gradients, density flattening, and feasibility.
 - Compare linear vs optimized analyte density.
 - Export LC method waypoints as CSV.
 - For DIA mode, suggest simple variable m/z windows from precursor density when m/z values are present.
@@ -17,7 +18,7 @@ The first working slice implements the baseline nonlinear-gradient idea from Mor
 
 Near-term work is DDA/TMT-first. Planned method metadata support will read the source gradient from `.meth` or other method-export files first, then evaluate `.raw` metadata extraction when method files are not available.
 
-For MS1-style DDA optimization, RAW/mzML support is also planned as a feature source: extract high-intensity MS1 feature apex RT, m/z, charge, and intensity, then optimize the LC gradient from the observed feature distribution.
+For MS1-style DDA optimization, the first bridge is feature-table import via the CLI. RAW/mzML support is still planned as the direct feature source: extract high-intensity MS1 feature apex RT, m/z, charge, and intensity, then optimize the LC gradient from the observed feature distribution.
 
 Open [index.html](./index.html) in a browser to use the app.
 
@@ -39,6 +40,7 @@ Use the bundled Node runtime or any recent Node.js:
 - [src/app.js](./src/app.js) - browser UI controller.
 - [tools/optimize-dda.js](./tools/optimize-dda.js) - command-line DDA optimizer.
 - [examples/dda_tmt_peptides.csv](./examples/dda_tmt_peptides.csv) - sample input.
+- [examples/ms1_features.csv](./examples/ms1_features.csv) - sample MS1 feature-table input.
 - [tests/gradient-engine.test.js](./tests/gradient-engine.test.js) - smoke tests.
 
 ## References

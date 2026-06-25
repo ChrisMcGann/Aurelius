@@ -21,14 +21,52 @@
       "ms_rt",
       "best_rt",
       "elution_time",
-      "time"
+      "time",
+      "apex",
+      "apex rt",
+      "apex_rt_min",
+      "rt apex min",
+      "feature apex rt",
+      "feature_apex_rt"
     ],
     sequence: ["sequence", "peptide", "stripped_sequence", "peptide_sequence", "trimmed peptide", "trimmed_peptide"],
     modifiedSequence: ["modified_sequence", "modified peptide", "modifiedsequence", "mod_sequence", "peptide_modified_sequence"],
-    intensity: ["intensity", "area", "height", "abundance", "precursor_quantity", "precursor intensity", "precursor_intensity", "peak_area"],
+    intensity: [
+      "intensity",
+      "area",
+      "height",
+      "abundance",
+      "precursor_quantity",
+      "precursor intensity",
+      "precursor_intensity",
+      "peak_area",
+      "feature_intensity",
+      "feature intensity",
+      "feature_area",
+      "feature area",
+      "apex_intensity",
+      "apex intensity",
+      "max_intensity",
+      "max intensity"
+    ],
     qValue: ["q_value", "q-value", "qvalue", "pep", "fdr", "posterior_error_probability", "lda q value", "lda_q_value"],
-    mz: ["mz", "m/z", "precursor_mz", "precursor mz", "precursor.mass", "obs m/z", "obs_mz", "obs_m_z", "isolation m/z", "orig prec m/z"],
-    charge: ["charge", "z", "precursor_charge"],
+    mz: [
+      "mz",
+      "m/z",
+      "precursor_mz",
+      "precursor mz",
+      "precursor.mass",
+      "obs m/z",
+      "obs_mz",
+      "obs_m_z",
+      "isolation m/z",
+      "orig prec m/z",
+      "monoisotopic_mz",
+      "monoisotopic m/z",
+      "feature_mz",
+      "feature mz"
+    ],
+    charge: ["charge", "z", "precursor_charge", "charge_state", "charge state", "feature_charge"],
     tmtSnr: ["tmt_snr", "reporter_snr", "sn", "sum sn", "sum_sn", "summed_sn", "reporter ion sn", "reporter_ion_snr"],
     priority: ["priority", "target_priority", "rank_weight", "target_weight"],
     weight: ["weight", "optimizer_weight"],
@@ -37,7 +75,9 @@
     isolationSpecificity: ["isolation specificity", "isolation_specificity", "precursor purity", "precursor_purity"],
     peakWidth: ["peak width", "peak_width", "fwhm"],
     injectionTime: ["ion injection time", "ion_injection_time", "injection_time"],
-    scan: ["scan", "scanf", "scanf", "scan number", "scan_number"]
+    scan: ["scan", "scanf", "scanf", "scan number", "scan_number"],
+    scanCount: ["scan_count", "scan count", "n_scans", "num_scans", "scans", "persistence", "ms1_scans"],
+    quality: ["quality", "score", "feature_score", "feature score", "fit", "fit_score", "r2", "r^2"]
   };
 
   function normalizeName(value) {
@@ -250,12 +290,36 @@
     return clamp(scaled, 0.1, mode === "godig" ? 8 : 5);
   }
 
+  function scanCountFactor(value) {
+    if (!Number.isFinite(value) || value <= 0) {
+      return 1;
+    }
+    return clamp(Math.sqrt(value / 4), 0.45, 2.25);
+  }
+
+  function normalizeQuality(value) {
+    if (!Number.isFinite(value)) {
+      return NaN;
+    }
+    return value > 1 && value <= 100 ? value / 100 : value;
+  }
+
+  function qualityFactor(value) {
+    const normalized = normalizeQuality(value);
+    if (!Number.isFinite(normalized)) {
+      return 1;
+    }
+    return clamp(0.35 + 0.85 * normalized, 0.2, 1.3);
+  }
+
   function buildAnalytes(input, mode, options) {
     const parsed = typeof input === "string" ? parseDelimited(input) : input;
     const columns = detectColumns(parsed.headers || []);
     const opts = options || {};
     const maxQValue = normalizeQValue(toNumber(opts.maxQValue));
     const minIntensity = toNumber(opts.minIntensity);
+    const minScanCount = toNumber(opts.minScanCount);
+    const minQuality = normalizeQuality(toNumber(opts.minQuality));
     const warnings = [];
     const analytes = [];
     let skippedRows = 0;
@@ -285,12 +349,23 @@
       const priority = toNumber(row[columns.priority]);
       const unique = parseBoolean(row[columns.unique]);
       const isolationSpecificity = toNumber(row[columns.isolationSpecificity]);
+      const scanCount = toNumber(row[columns.scanCount]);
+      const quality = toNumber(row[columns.quality]);
+      const normalizedQuality = normalizeQuality(quality);
 
       if (Number.isFinite(maxQValue) && Number.isFinite(qValueNormalized) && qValueNormalized > maxQValue) {
         skippedRows += 1;
         return;
       }
       if (Number.isFinite(minIntensity) && Number.isFinite(intensity) && intensity < minIntensity) {
+        skippedRows += 1;
+        return;
+      }
+      if (Number.isFinite(minScanCount) && Number.isFinite(scanCount) && scanCount < minScanCount) {
+        skippedRows += 1;
+        return;
+      }
+      if (Number.isFinite(minQuality) && Number.isFinite(normalizedQuality) && normalizedQuality < minQuality) {
         skippedRows += 1;
         return;
       }
@@ -301,6 +376,10 @@
       weight *= intensityFactor(tmtSnr, medianTmtSnr);
       weight *= priorityFactor(priority, mode);
       weight *= isolationSpecificityFactor(isolationSpecificity);
+      if (mode === "ms1_features") {
+        weight *= scanCountFactor(scanCount);
+        weight *= qualityFactor(quality);
+      }
       if (unique === true) {
         weight *= 1.12;
       } else if (unique === false) {
@@ -326,6 +405,8 @@
         isolationSpecificity,
         peakWidth: toNumber(row[columns.peakWidth]),
         injectionTime: toNumber(row[columns.injectionTime]),
+        scanCount,
+        quality,
         protein: columns.protein ? row[columns.protein] : "",
         weight: Number.isFinite(weight) && weight > 0 ? weight : 1,
         sourceRow: row

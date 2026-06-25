@@ -19,6 +19,8 @@ Every imported table is normalized into an analyte record.
 | `isolation_specificity` | number | no | Precursor isolation specificity or purity. |
 | `peak_width` | number | no | Peak width from search/feature output. |
 | `injection_time` | number | no | Ion injection time when available. |
+| `scan_count` | number | no | MS1 feature persistence when available. |
+| `quality` | number | no | Feature fit/detection quality when available. |
 | `protein` | string | no | Protein or gene grouping. |
 | `weight` | number | yes | Computed optimizer weight. |
 | `source_row` | object | yes | Original imported values. |
@@ -46,16 +48,18 @@ MS1-style optimization can use detected features even when no peptide identity i
 
 The parser is permissive and maps common variants:
 
-- RT: `rt`, `retention_time`, `retention time`, `apex_rt`, `rt_apex`, `raw_rt`, `ms_rt`, `best_rt`, `time`
+- RT: `rt`, `retention_time`, `retention time`, `apex_rt`, `rt_apex`, `apex_rt_min`, `feature_apex_rt`, `raw_rt`, `ms_rt`, `best_rt`, `time`
 - Sequence: `sequence`, `peptide`, `stripped_sequence`, `modified_sequence`, `trimmed peptide`
-- Intensity: `intensity`, `area`, `height`, `abundance`, `precursor_quantity`, `precursor intensity`
+- Intensity: `intensity`, `area`, `height`, `abundance`, `precursor_quantity`, `precursor intensity`, `feature_intensity`, `feature_area`, `apex_intensity`, `max_intensity`
 - Confidence: `q_value`, `q-value`, `qvalue`, `pep`, `fdr`, `lda q value`
-- m/z: `mz`, `m/z`, `precursor_mz`, `obs m/z`, `isolation m/z`, `orig prec m/z`
-- Charge: `charge`, `z`
+- m/z: `mz`, `m/z`, `precursor_mz`, `obs m/z`, `isolation m/z`, `orig prec m/z`, `monoisotopic_mz`, `feature_mz`
+- Charge: `charge`, `z`, `charge_state`, `feature_charge`
 - TMT quality: `tmt_snr`, `reporter_snr`, `sn`, `sum_sn`
 - Isolation quality: `isolation specificity`, `precursor purity`
 - Peak width: `peak width`, `fwhm`
 - Injection time: `ion injection time`, `injection_time`
+- MS1 persistence: `scan_count`, `n_scans`, `num_scans`, `persistence`, `ms1_scans`
+- Feature quality: `quality`, `score`, `feature_score`, `fit_score`, `r2`
 - Priority: `priority`, `target_priority`, `rank_weight`
 - Weight override: `weight`
 
