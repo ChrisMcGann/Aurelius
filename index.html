@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Aurelius LC Gradient Optimizer</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <h1>Aurelius</h1>
+        <p>LC gradient optimizer for bottom-up proteomics</p>
+      </div>
+      <div class="header-actions">
+        <button id="sampleButton" type="button">Load Sample</button>
+        <button id="runButton" type="button">Run</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="control-panel">
+        <section class="panel-section">
+          <h2>Mode</h2>
+          <div class="segmented" id="modeButtons" aria-label="Mode">
+            <button type="button" data-mode="dda_tmt" class="active">DDA/TMT</button>
+            <button type="button" data-mode="dia">DIA</button>
+            <button type="button" data-mode="godig">GoDig</button>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <h2>Input</h2>
+          <label class="file-pick">
+            <span>Table File</span>
+            <input id="fileInput" type="file" accept=".csv,.tsv,.txt">
+          </label>
+          <label>
+            <span>Paste Table</span>
+            <textarea id="tableInput" spellcheck="false"></textarea>
+          </label>
+        </section>
+
+        <section class="panel-section">
+          <h2>Gradient</h2>
+          <button id="fitRtButton" type="button">Fit RT</button>
+          <div class="grid-2">
+            <label><span>Start Min</span><input id="startTime" type="number" value="10" step="0.1"></label>
+            <label><span>End Min</span><input id="endTime" type="number" value="130" step="0.1"></label>
+            <label><span>Start %B</span><input id="startB" type="number" value="2" step="0.1"></label>
+            <label><span>End %B</span><input id="endB" type="number" value="40" step="0.1"></label>
+            <label><span>Lag Min</span><input id="lagTime" type="number" value="0" step="0.1"></label>
+            <label><span>Step Min</span><input id="stepSize" type="number" value="1" step="0.1"></label>
+            <label><span>Min Slope</span><input id="minSlope" type="number" value="0" step="0.01"></label>
+            <label><span>Max Slope</span><input id="maxSlope" type="number" value="1.0" placeholder="none" step="0.01"></label>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <h2>Acquisition</h2>
+          <div class="grid-2">
+            <label><span>Density Bins</span><input id="densityBins" type="number" value="24" step="1"></label>
+            <label><span>DIA Windows</span><input id="diaWindows" type="number" value="24" step="1"></label>
+            <label><span>Max Q</span><input id="maxQValue" type="number" value="0.01" step="0.001"></label>
+            <label><span>Min Intensity</span><input id="minIntensity" type="number" placeholder="none" step="100"></label>
+          </div>
+        </section>
+
+        <section class="panel-section exports">
+          <h2>Export</h2>
+          <button id="downloadGradient" type="button" disabled>Gradient CSV</button>
+          <button id="downloadAdjunct" type="button" disabled>Mode CSV</button>
+        </section>
+      </aside>
+
+      <section class="analysis-area">
+        <section class="metric-strip" id="metrics"></section>
+
+        <section class="chart-grid">
+          <article class="chart-panel">
+            <div class="panel-heading">
+              <h2>Gradient</h2>
+              <span id="gradientCaption"></span>
+            </div>
+            <canvas id="gradientCanvas" width="900" height="360"></canvas>
+          </article>
+
+          <article class="chart-panel">
+            <div class="panel-heading">
+              <h2>Density</h2>
+              <span id="densityCaption"></span>
+            </div>
+            <canvas id="densityCanvas" width="900" height="360"></canvas>
+          </article>
+        </section>
+
+        <section class="lower-grid">
+          <article class="data-panel">
+            <div class="panel-heading">
+              <h2>Columns</h2>
+              <span id="columnStatus"></span>
+            </div>
+            <div id="previewTable" class="table-wrap"></div>
+          </article>
+
+          <article class="data-panel">
+            <div class="panel-heading">
+              <h2>Method</h2>
+              <span id="methodStatus"></span>
+            </div>
+            <div id="gradientTable" class="table-wrap"></div>
+          </article>
+
+          <article class="data-panel">
+            <div class="panel-heading">
+              <h2>Mode Output</h2>
+              <span id="adjunctStatus"></span>
+            </div>
+            <div id="adjunctPanel" class="table-wrap"></div>
+          </article>
+        </section>
+
+        <section id="messages" class="messages"></section>
+      </section>
+    </main>
+
+    <script src="src/gradient-engine.js"></script>
+    <script src="src/app.js"></script>
+  </body>
+</html>

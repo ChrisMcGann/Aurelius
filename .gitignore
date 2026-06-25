@@ -1,0 +1,9 @@
+output/
+*.raw
+*.meth
+*.mzML
+*.mzML.gz
+*.cache/
+node_modules/
+examples/cmcgann_*.csv
+!examples/dda_tmt_peptides.csv
